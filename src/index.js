@@ -177,6 +177,8 @@ class WeightedGraph {
      Space Complexity - O(v * 2);
   */
   floydWarshall(start, end) {
+    let begin = start;
+    let finish = end;
     const matrix = [];
 
     for (let i = 0; i < Object.keys(this.list).length; i++) {
@@ -185,8 +187,13 @@ class WeightedGraph {
       matrix[i][i] = 0;
     }
 
+    const parent = [];
     for (let { start, end, w } of this.edges) {
       matrix[start][end] = w;
+
+      if (!parent[start]) parent[start] = [];
+
+      parent[start][end] = end;
     }
 
     for (let i = 0; i < Object.keys(this.list).length; i++) {
@@ -194,17 +201,27 @@ class WeightedGraph {
         for (let k = 0; k < matrix[i].length; k++) {
           if (j === i) continue;
 
-          matrix[j][k] = Math.min(matrix[j][i] + matrix[i][k], matrix[j][k]);
+          if (matrix[j][i] + matrix[i][k] < matrix[j][k]) {
+            matrix[j][k] = Math.min(matrix[j][i] + matrix[i][k], matrix[j][k]);
+            parent[j][k] = parent[j][i];
+          }
         }
       }
     }
 
+    const path = [];
+    while (start !== end) {
+      path.push(start);
+      start = parent[start][end];
+    }
+
+    console.log(matrix);
     for (let i = 0; i < Object.keys(this.list).length; i++) {
       if (matrix[i][i] < 0)
         document.getElementById("FLOYD").textContent = "-ve edge cycle present";
     }
 
-    document.getElementById("FLOYD").textContent = matrix[start][end];
+    document.getElementById("FLOYD").textContent = matrix[begin][finish];
   }
 }
 
@@ -250,16 +267,16 @@ graph2.bellmanFord("0", "4");
 
 const graph3 = new WeightedGraph();
 
-graph3.addVertex("0");
-graph3.addVertex("1");
-graph3.addVertex("2");
-graph3.addVertex("3");
+graph3.addVertex(0);
+graph3.addVertex(1);
+graph3.addVertex(2);
+graph3.addVertex(3);
 
-graph3.addEdge("0", "1", 9);
-graph3.addEdge("0", "2", -4);
-graph3.addEdge("1", "3", 2);
-graph3.addEdge("1", "0", 6);
-graph3.addEdge("2", "1", 5);
-graph3.addEdge("3", "2", 1);
+graph3.addEdge(0, 1, 9);
+graph3.addEdge(0, 2, -4);
+graph3.addEdge(1, 3, 2);
+graph3.addEdge(1, 0, 6);
+graph3.addEdge(2, 1, 5);
+graph3.addEdge(3, 2, 1);
 
-graph3.floydWarshall(1, 3);
+graph3.floydWarshall(0, 1);
