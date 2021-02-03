@@ -169,6 +169,43 @@ class WeightedGraph {
 
     document.getElementById("bellman").textContent = path.reverse();
   }
+
+  /*
+     All Pair shortest path algorithm. 
+     Can find the shortest path weight between nodes. Not actually giving the path
+     Time Complexity - O(V * 3)
+     Space Complexity - O(v * 2);
+  */
+  floydWarshall(start, end) {
+    const matrix = [];
+
+    for (let i = 0; i < Object.keys(this.list).length; i++) {
+      matrix[i] = new Array(Object.keys(this.list).length).fill(Infinity);
+
+      matrix[i][i] = 0;
+    }
+
+    for (let { start, end, w } of this.edges) {
+      matrix[start][end] = w;
+    }
+
+    for (let i = 0; i < Object.keys(this.list).length; i++) {
+      for (let j = 0; j < matrix.length; j++) {
+        for (let k = 0; k < matrix[i].length; k++) {
+          if (j === i) continue;
+
+          matrix[j][k] = Math.min(matrix[j][i] + matrix[i][k], matrix[j][k]);
+        }
+      }
+    }
+
+    for (let i = 0; i < Object.keys(this.list).length; i++) {
+      if (matrix[i][i] < 0)
+        document.getElementById("FLOYD").textContent = "-ve edge cycle present";
+    }
+
+    document.getElementById("FLOYD").textContent = matrix[start][end];
+  }
 }
 
 const graph = new WeightedGraph();
@@ -210,3 +247,19 @@ graph2.addEdge("3", "4", 7);
 graph2.addEdge("4", "1", -2);
 
 graph2.bellmanFord("0", "4");
+
+const graph3 = new WeightedGraph();
+
+graph3.addVertex("0");
+graph3.addVertex("1");
+graph3.addVertex("2");
+graph3.addVertex("3");
+
+graph3.addEdge("0", "1", 9);
+graph3.addEdge("0", "2", -4);
+graph3.addEdge("1", "3", 2);
+graph3.addEdge("1", "0", 6);
+graph3.addEdge("2", "1", 5);
+graph3.addEdge("3", "2", 1);
+
+graph3.floydWarshall(1, 3);
